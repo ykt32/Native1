@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet } from "react-native";
-import React from "react";
+import { View, Text, StyleSheet, Pressable } from "react-native";
+import React, { useState } from "react";
 import { Image } from "expo-image";
 
 const blurhash =
@@ -9,34 +9,43 @@ export default function Category({
   id,
   name,
   image,
+  onSelect,
+  select,
 }: {
   id: number;
   name: string;
   image: any;
+  onSelect: (name: string) => void;
+  select: string;
 }) {
   return (
-    <View style={styles.container}>
+    <Pressable style={styles.container} onPress={() => onSelect(name)}>
       <Image
-        style={styles.image}
+        style={[styles.image, select === name && styles.select]}
         source={image}
         placeholder={{ blurhash }}
         contentFit="cover"
         transition={1000}
       />
       <Text style={styles.text}>{name}</Text>
-    </View>
+    </Pressable>
   );
 }
 const styles = StyleSheet.create({
   container: {
     justifyContent: "center",
     alignItems: "center",
-    marginRight:30
+    marginRight: 30,
   },
 
   image: {
     width: 55,
     height: 55,
+  },
+  select: {
+    borderColor: "orange",
+    borderWidth: 2,
+    borderRadius: 27,
   },
   text: {
     fontSize: 12,

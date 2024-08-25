@@ -1,10 +1,18 @@
-import { View, Text, StyleSheet, Dimensions, Pressable } from "react-native";
-import React, { useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  Pressable,
+  ScrollView,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 import { useNavigation } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { FlashList } from "@shopify/flash-list";
 import { categories, products } from "@/data";
+import { StatusBar } from "expo-status-bar";
 
 import Cart from "@/components/shop/Cart";
 import Title from "@/components/shop/Title";
@@ -13,11 +21,19 @@ import Category from "@/components/shop/Category";
 import Product from "@/components/shop/Product";
 
 export default function HomeScreen() {
+  const [select, setSelect] = useState("Men");
+  //for heart click
+  const [date, setData] = useState(products);
+
   const { height } = Dimensions.get("window");
   const navigation = useNavigation();
   useEffect(() => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
+
+  const onSelectHandler = (name: string) => {
+    setSelect(name);
+  };
 
   const blurhash =
     "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
@@ -25,6 +41,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={{ minHeight: height, borderColor: "#ffffff" }}>
       <View style={styles.container}>
+        <StatusBar style="dark" />
         <Pressable>
           <Image
             style={styles.image}
@@ -39,29 +56,42 @@ export default function HomeScreen() {
           <Cart />
         </Pressable>
       </View>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Image
+          style={styles.banner}
+          source={require("@/assets/images/shop/banner6.png")}
+          placeholder={{ blurhash }}
+          contentFit="cover"
+          transition={1000}
+        />
 
-      <Image
-        style={styles.banner}
-        source={require("@/assets/images/shop/banner6.png")}
-        placeholder={{ blurhash }}
-        contentFit="cover"
-        transition={1000}
-      />
-      <Pressable>
         <View style={{ marginLeft: 20 }}>
-          <Title title="Shop By Category" action="See All" />
+          <Title title="Show By Category" action="See All" />
           <FlashList
             data={categories}
+            extraData={select}
             horizontal
-            renderItem={({ item }) => <Category {...item} />}
-            estimatedItemSize={55}
-            //delete indicator line
+            renderItem={({ item }) => (
+              <Category {...item} onSelect={onSelectHandler} select={select} />
+            )}
+            estimatedItemSize={80}
             showsHorizontalScrollIndicator={false}
           />
           <Text>{""}</Text>
           <Title title="Recommened For You " action="See All" />
           <FlashList
-            data={products.manShirt}
+            data={date[select as keyof typeof date]}
+            extraData={select}
+            horizontal
+            renderItem={({ item }) => <Product {...item} />}
+            estimatedItemSize={55}
+            //delete indicator line
+            showsHorizontalScrollIndicator={false}
+          />
+          <Title title="Popular List for you " action="See All" />
+          <FlashList
+            data={date[select as keyof typeof date]}
+            extraData={select}
             horizontal
             renderItem={({ item }) => <Product {...item} />}
             estimatedItemSize={55}
@@ -69,7 +99,7 @@ export default function HomeScreen() {
             showsHorizontalScrollIndicator={false}
           />
         </View>
-      </Pressable>
+      </ScrollView>
     </SafeAreaView>
   );
 }
