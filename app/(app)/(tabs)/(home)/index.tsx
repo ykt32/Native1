@@ -6,13 +6,14 @@ import {
   Pressable,
   ScrollView,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import { useNavigation } from "expo-router";
+import React, { useEffect, useState, useRef } from "react";
+import { useNavigation, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { FlashList } from "@shopify/flash-list";
 import { categories, products } from "@/data";
 import { StatusBar } from "expo-status-bar";
+import { useScrollToTop } from "@react-navigation/native";
 
 import Cart from "@/components/shop/Cart";
 import Title from "@/components/shop/Title";
@@ -21,11 +22,16 @@ import Category from "@/components/shop/Category";
 import Product from "@/components/shop/Product";
 
 export default function HomeScreen() {
+  const { height } = Dimensions.get("window");
   const [select, setSelect] = useState("Men");
   //for heart click
   const [date, setData] = useState(products);
+  //for Scroll Ref
+  const scrollRef = useRef<ScrollView>(null);
+  useScrollToTop(scrollRef);
 
-  const { height } = Dimensions.get("window");
+  const route = useRouter();
+
   const navigation = useNavigation();
   useEffect(() => {
     navigation.setOptions({ headerShown: false });
@@ -35,6 +41,18 @@ export default function HomeScreen() {
     setSelect(name);
   };
 
+  const onPressToTop = () => {
+    scrollRef.current?.scrollTo({
+      y: 0,
+      animated: true,
+    });
+  };
+
+  //For cart to go detail Screen
+  const goToDetail = (id: number) => {
+    route.navigate("/detail");
+  };
+
   const blurhash =
     "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
@@ -42,7 +60,7 @@ export default function HomeScreen() {
     <SafeAreaView style={{ minHeight: height, borderColor: "#ffffff" }}>
       <View style={styles.container}>
         <StatusBar style="dark" />
-        <Pressable>
+        <Pressable onPress={onPressToTop}>
           <Image
             style={styles.image}
             source={require("@/assets/images/shop/n.png")}
@@ -52,11 +70,11 @@ export default function HomeScreen() {
           />
         </Pressable>
 
-        <Pressable>
+        <Pressable onPress={() => route.navigate("/cart")}>
           <Cart />
         </Pressable>
       </View>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} ref={scrollRef}>
         <Image
           style={styles.banner}
           source={require("@/assets/images/shop/banner6.png")}
@@ -81,9 +99,10 @@ export default function HomeScreen() {
           <Title title="Recommened For You " action="See All" />
           <FlashList
             data={date[select as keyof typeof date]}
+            //Rerender
             extraData={select}
             horizontal
-            renderItem={({ item }) => <Product {...item} />}
+            renderItem={({ item }) => <Product {...item} onCall={goToDetail} />}
             estimatedItemSize={55}
             //delete indicator line
             showsHorizontalScrollIndicator={false}
@@ -93,7 +112,7 @@ export default function HomeScreen() {
             data={date[select as keyof typeof date]}
             extraData={select}
             horizontal
-            renderItem={({ item }) => <Product {...item} />}
+            renderItem={({ item }) => <Product {...item} onCall={goToDetail} />}
             estimatedItemSize={55}
             //delete indicator line
             showsHorizontalScrollIndicator={false}
@@ -115,12 +134,12 @@ const styles = StyleSheet.create({
     width: 50,
     height: 25,
     marginLeft: 15,
+    marginBottom: 10,
   },
 
   banner: {
     width: "100%",
     //for responsive
     aspectRatio: 20 / 9,
-    marginTop: 10,
   },
 });

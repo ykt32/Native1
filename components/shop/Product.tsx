@@ -18,6 +18,7 @@ type ProdutProp = {
   discount: number;
   image: any;
   favourite: boolean;
+  onCall: (id:number) => void;
 };
 
 export default function Product({
@@ -30,10 +31,11 @@ export default function Product({
   discount,
   image,
   favourite,
+  onCall,
 }: ProdutProp) {
   return (
     <View style={styles.container}>
-      <Pressable>
+      <Pressable onPress={() =>onCall(id)}>
         <ImageBackground
           source={image}
           style={styles.imageView}
@@ -96,7 +98,7 @@ const styles = StyleSheet.create({
   brand: {
     color: "gray",
     // fontSize: 13,
-    fontWeight: 600,
+    fontWeight: "600",
     marginRight: 6,
   },
   star: {
@@ -123,7 +125,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   discount: {
-    color:"gray",
-    textDecorationLine:"line-through"
+    color: "gray",
+    textDecorationLine: "line-through",
   },
 });
