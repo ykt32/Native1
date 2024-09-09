@@ -1,24 +1,44 @@
 import { createSlice } from "@reduxjs/toolkit";
-
-interface produceState {
-  user: { id: number; name: string; email: string; company: { name: string } };
+type Product = {
+  id: number;
+  brand: string;
+  title: string;
+  star: number;
+  quantity: number;
+  price: number;
+  discount: number;
+  image: any;
+  favourite: boolean;
+};
+interface productState {
+  product: Product;
 }
 
-const initialState: produceState = {
-  user: { id: 1, name: "", email: "", company: { name: "" } },
+const initialState: productState = {
+  product: {
+    id: 1,
+    brand: "H&M",
+    title: "Oversized Fit Printed Mesh T-Shirt",
+    star: 4.9,
+    quantity: 136,
+    price: 295.0,
+    discount: 550.0,
+    image: "t1",
+    favourite: false,
+  },
 };
 
 const productSlice = createSlice({
   name: "users",
   initialState,
   reducers: {
-    setUser: (state, action) => {
-      state.user = action.payload;
+    setProduct: (state, action) => {
+      state.product = action.payload;
     },
     // Other reducers go here
   },
 });
 
-export const { setUser } = productSlice.actions;
+export const { setProduct } = productSlice.actions;
 
 export default productSlice.reducer;

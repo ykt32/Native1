@@ -8,7 +8,7 @@ import {
 import React from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-type ProdutProp = {
+type ProductProp = {
   id: number;
   brand: string;
   title: string;
@@ -18,7 +18,7 @@ type ProdutProp = {
   discount: number;
   image: any;
   favourite: boolean;
-  onCall: (id:number) => void;
+  onCall: () => void;
 };
 
 export default function Product({
@@ -32,10 +32,10 @@ export default function Product({
   image,
   favourite,
   onCall,
-}: ProdutProp) {
+}: ProductProp) {
   return (
     <View style={styles.container}>
-      <Pressable onPress={() =>onCall(id)}>
+      <Pressable onPress={onCall}>
         <ImageBackground
           source={image}
           style={styles.imageView}

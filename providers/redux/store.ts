@@ -13,7 +13,7 @@ import productReducer from "./productSlice";
 
 export const store = configureStore({
   reducer: {
-    users: productReducer,
+    products: productReducer,
   },
 });
 

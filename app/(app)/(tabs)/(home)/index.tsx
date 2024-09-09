@@ -15,11 +15,18 @@ import { categories, products } from "@/data";
 import { StatusBar } from "expo-status-bar";
 import { useScrollToTop } from "@react-navigation/native";
 
+//redux
+import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
+import { setProduct } from "@/providers/redux/productSlice";
+
 import Cart from "@/components/shop/Cart";
 import Title from "@/components/shop/Title";
 import { FlatList } from "react-native-reanimated/lib/typescript/Animated";
 import Category from "@/components/shop/Category";
 import Product from "@/components/shop/Product";
+
+const blurhash =
+  "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
 export default function HomeScreen() {
   const { height } = Dimensions.get("window");
@@ -29,8 +36,9 @@ export default function HomeScreen() {
   //for Scroll Ref
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
-
   const route = useRouter();
+
+  const dispatch = useAppDispatch();
 
   const navigation = useNavigation();
   useEffect(() => {
@@ -49,12 +57,18 @@ export default function HomeScreen() {
   };
 
   //For cart to go detail Screen
-  const goToDetail = (id: number) => {
+  const saveProductToRedux = (item: any) => {
+    dispatch(setProduct(item));
     route.navigate("/detail");
   };
 
-  const blurhash =
-    "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
+  // //for saveProduct To store
+  // const saveProductToRedux = (item: any) => {
+  //   dispatch(setProduct(item));
+
+  //   //go to detail and then take product cart at store
+  //   route.navigate("/detail");
+  // };
 
   return (
     <SafeAreaView style={{ minHeight: height, borderColor: "#ffffff" }}>
@@ -102,7 +116,9 @@ export default function HomeScreen() {
             //Rerender
             extraData={select}
             horizontal
-            renderItem={({ item }) => <Product {...item} onCall={goToDetail} />}
+            renderItem={({ item }) => (
+              <Product {...item} onCall={() => saveProductToRedux(item)} />
+            )}
             estimatedItemSize={55}
             //delete indicator line
             showsHorizontalScrollIndicator={false}
@@ -112,11 +128,14 @@ export default function HomeScreen() {
             data={date[select as keyof typeof date]}
             extraData={select}
             horizontal
-            renderItem={({ item }) => <Product {...item} onCall={goToDetail} />}
+            renderItem={({ item }) => (
+              <Product {...item} onCall={() => saveProductToRedux(item)} />
+            )}
             estimatedItemSize={55}
             //delete indicator line
             showsHorizontalScrollIndicator={false}
           />
+          <View style={{ marginBottom: 100 }} />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -127,14 +146,14 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginRight: 15,
+    marginBottom: 10,
+    marginRight: 15, 
   },
 
   image: {
     width: 50,
     height: 25,
     marginLeft: 15,
-    marginBottom: 10,
   },
 
   banner: {

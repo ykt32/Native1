@@ -3,7 +3,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function Cart() {
   return (
-    <View style={{ flexDirection: "row", marginRight: 15 }}>
+    <View style={{ flexDirection: "row"}}>
       <Ionicons name="cart-outline" size={28} color="black" />
       <View style={styles.container}>
         <Text style={styles.budge}>13</Text>
