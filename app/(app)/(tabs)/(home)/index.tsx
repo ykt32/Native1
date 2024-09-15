@@ -4,46 +4,76 @@ import {
   StyleSheet,
   Dimensions,
   Pressable,
+  FlatList,
   ScrollView,
 } from "react-native";
 import React, { useEffect, useState, useRef } from "react";
-import { useNavigation, useRouter } from "expo-router";
+import { Link, useNavigation, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { FlashList } from "@shopify/flash-list";
-import { categories, products } from "@/data";
 import { StatusBar } from "expo-status-bar";
 import { useScrollToTop } from "@react-navigation/native";
 
-//redux
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
-import { setProduct } from "@/providers/redux/productSlice";
+import {
+  fetchProducts,
+  updateFavouriteApi,
+  updateProduct,
+  selectProductById,
+  selectAllProducts,
+} from "@/providers/redux/productSlice";
+import { ProductType, CategoryType } from "@/types";
+import Toast from "react-native-root-toast";
 
 import Cart from "@/components/shop/Cart";
 import Title from "@/components/shop/Title";
-import { FlatList } from "react-native-reanimated/lib/typescript/Animated";
 import Category from "@/components/shop/Category";
 import Product from "@/components/shop/Product";
+import { categories } from "@/data";
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
 export default function HomeScreen() {
-  const { height } = Dimensions.get("window");
-  const [select, setSelect] = useState("Men");
-  //for heart click
-  const [date, setData] = useState(products);
-  //for Scroll Ref
+  const { width, height } = Dimensions.get("window");
+  const navigation = useNavigation();
+  const [select, setSelect] = useState("uuid1");
+  // const [data, setData] = useState();
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
-  const route = useRouter();
+  const router = useRouter();
 
   const dispatch = useAppDispatch();
+  const products = useAppSelector(selectAllProducts);
+  const productsLoading = useAppSelector((state) => state.products.loading);
+  const errorStatus = useAppSelector((state) => state.products.error);
+  // const categories: CategoryType[] = useAppSelector(
+  //   (state) => state.requiredInfo.categories
+  // );
+  const productLists = products.filter(
+    (product) => product.categories_id === select
+  );
 
-  const navigation = useNavigation();
   useEffect(() => {
     navigation.setOptions({ headerShown: false });
+    dispatch(fetchProducts());
   }, [navigation]);
+
+  if (productsLoading) {
+    return <Text>Loading...</Text>;
+  }
+
+  if (errorStatus) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Network Connection Failed!</Text>
+        <Pressable onPress={() => dispatch(fetchProducts())} style={styles.btnError}>
+          <Text>Try again</Text>
+        </Pressable>
+      </View>
+    );
+  }
 
   const onSelectHandler = (name: string) => {
     setSelect(name);
@@ -56,22 +86,28 @@ export default function HomeScreen() {
     });
   };
 
-  //For cart to go detail Screen
-  const saveProductToRedux = (item: any) => {
-    dispatch(setProduct(item));
-    route.navigate("/detail");
+  const saveProductToRedux = (id: string) => {
+    router.push({
+      pathname: "/detail",
+      params: { id }, // Data passed as query parameters
+    });
   };
 
-  // //for saveProduct To store
-  // const saveProductToRedux = (item: any) => {
-  //   dispatch(setProduct(item));
-
-  //   //go to detail and then take product cart at store
-  //   route.navigate("/detail");
-  // };
+  const addToFavourite = async (item: ProductType) => {
+    try {
+      const data = { id: item.id, data: { favourite: !item.favourite } };
+      // const data = { id: "abc", data: { favourite: !item.favourite } };
+      await dispatch(updateFavouriteApi(data)).unwrap();
+    } catch (error: any) {
+      // console.log("Error-----", error);
+      Toast.show(error, {
+        duration: Toast.durations.SHORT,
+      });
+    }
+  };
 
   return (
-    <SafeAreaView style={{ minHeight: height, borderColor: "#ffffff" }}>
+    <SafeAreaView style={{ minHeight: height, backgroundColor: "#ffffff" }}>
       <View style={styles.container}>
         <StatusBar style="dark" />
         <Pressable onPress={onPressToTop}>
@@ -83,8 +119,7 @@ export default function HomeScreen() {
             transition={1000}
           />
         </Pressable>
-
-        <Pressable onPress={() => route.navigate("/cart")}>
+        <Pressable onPress={() => router.navigate("/cart")}>
           <Cart />
         </Pressable>
       </View>
@@ -96,9 +131,8 @@ export default function HomeScreen() {
           contentFit="cover"
           transition={1000}
         />
-
         <View style={{ marginLeft: 20 }}>
-          <Title title="Show By Category" action="See All" />
+          <Title title="Shop By Category" action="See All" />
           <FlashList
             data={categories}
             extraData={select}
@@ -110,29 +144,24 @@ export default function HomeScreen() {
             showsHorizontalScrollIndicator={false}
           />
           <Text>{""}</Text>
-          <Title title="Recommened For You " action="See All" />
+          <Title title="Recommended for You" action="See All" />
           <FlashList
-            data={date[select as keyof typeof date]}
-            //Rerender
-            extraData={select}
+            data={productLists}
             horizontal
             renderItem={({ item }) => (
-              <Product {...item} onCall={() => saveProductToRedux(item)} />
+              <Product {...item} onCall={() => saveProductToRedux(item.id)} onAdd={() => addToFavourite(item)}/>
             )}
-            estimatedItemSize={55}
-            //delete indicator line
+            estimatedItemSize={80}
             showsHorizontalScrollIndicator={false}
           />
-          <Title title="Popular List for you " action="See All" />
+          <Title title="Popular Lists for You" action="See All" />
           <FlashList
-            data={date[select as keyof typeof date]}
-            extraData={select}
+            data={productLists}
             horizontal
             renderItem={({ item }) => (
-              <Product {...item} onCall={() => saveProductToRedux(item)} />
+              <Product {...item} onCall={() => saveProductToRedux(item.id)} onAdd={() => addToFavourite(item)}/>
             )}
-            estimatedItemSize={55}
-            //delete indicator line
+            estimatedItemSize={80}
             showsHorizontalScrollIndicator={false}
           />
           <View style={{ marginBottom: 100 }} />
@@ -147,18 +176,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 10,
-    marginRight: 15, 
+    marginRight: 15,
   },
-
   image: {
     width: 50,
     height: 25,
     marginLeft: 15,
   },
-
   banner: {
     width: "100%",
-    //for responsive
     aspectRatio: 20 / 9,
+  },
+  btnError: {
+    marginTop: 10,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderColor: 'black',
+    borderWidth: 0.5,
+    borderRadius: 5,
   },
 });

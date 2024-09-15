@@ -4,7 +4,7 @@ import LottieView from "lottie-react-native";
 
 export default function Cart() {
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center"}}>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <LottieView
         autoPlay
         style={{

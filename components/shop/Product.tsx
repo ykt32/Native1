@@ -7,9 +7,10 @@ import {
 } from "react-native";
 import React from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { API_URL } from "@/config";
 
-type ProductProp = {
-  id: number;
+type ProductProps = {
+  id: string;
   brand: string;
   title: string;
   star: number;
@@ -19,6 +20,7 @@ type ProductProp = {
   image: any;
   favourite: boolean;
   onCall: () => void;
+  onAdd: () => void;
 };
 
 export default function Product({
@@ -32,33 +34,38 @@ export default function Product({
   image,
   favourite,
   onCall,
-}: ProductProp) {
+  onAdd,
+}: ProductProps) {
   return (
     <View style={styles.container}>
       <Pressable onPress={onCall}>
         <ImageBackground
-          source={image}
+          source={{ uri: API_URL+ image }}
           style={styles.imageView}
           imageStyle={styles.image}
         >
-          <Pressable>
-            <View style={styles.heart}>
-              <Ionicons name="heart-outline" size={18} color="#E66F2D" />
+          <Pressable onPress={onAdd}>
+            <View style={styles.heartContainer}>
+              <Ionicons name={favourite ? "heart" : "heart-outline"} size={18} color="#E66F2D" />
             </View>
           </Pressable>
         </ImageBackground>
       </Pressable>
-      <View style={styles.text1}>
+      <View style={styles.brandContainer}>
         <Text style={styles.brand}>{brand}</Text>
-        <Ionicons name="star" size={12} color="orange" />
+        <Ionicons
+          name="star"
+          size={12}
+          color="orange"
+          style={{ paddingTop: 1 }}
+        />
         <Text style={styles.star}>{star}</Text>
         <Text style={styles.quantity}>({quantity})</Text>
       </View>
-      {/* //Limit title world (Substring) */}
       <Text style={styles.title}>
         {title.length > 25 ? title.substring(0, 25) + "..." : title}
       </Text>
-      <View style={styles.text2}>
+      <View style={styles.priceContainer}>
         <Text style={styles.price}>${price.toFixed(2)}</Text>
         <Text style={styles.discount}>${discount.toFixed(2)}</Text>
       </View>
@@ -70,39 +77,36 @@ const styles = StyleSheet.create({
   container: {
     marginRight: 17,
   },
-
   imageView: {
     width: 200,
     height: 250,
     resizeMode: "cover",
     alignItems: "flex-end",
-    marginTop: 12,
-    marginRight: 12,
   },
-
   image: {
     borderRadius: 5,
   },
-  heart: {
+  heartContainer: {
     backgroundColor: "#00000015",
     width: 30,
     height: 30,
     borderRadius: 15,
     justifyContent: "center",
     alignItems: "center",
+    marginTop: 12,
+    marginRight: 12,
   },
-  text1: {
+  brandContainer: {
     flexDirection: "row",
-    marginTop: 13,
+    marginTop: 10,
   },
   brand: {
     color: "gray",
-    // fontSize: 13,
     fontWeight: "600",
-    marginRight: 6,
+    marginRight: 7,
   },
   star: {
-    marginHorizontal: 3,
+    marginHorizontal: 2,
     fontSize: 13,
   },
   quantity: {
@@ -110,22 +114,21 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   title: {
-    //Limit title world
     marginVertical: 7,
     fontSize: 15,
-    fontWeight: "500",
+    fontWeight: '500',
   },
-  text2: {
-    flexDirection: "row",
+  priceContainer: {
+    flexDirection: 'row',
   },
   price: {
     marginRight: 7,
-    color: "#007618",
+    color: '#007618',
     fontSize: 15,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   discount: {
-    color: "gray",
-    textDecorationLine: "line-through",
+    color: 'gray',
+    textDecorationLine: 'line-through',
   },
 });
