@@ -7,6 +7,8 @@ import {
 import { setupListeners } from "@reduxjs/toolkit/query";
 
 import productReducer from "./productSlice";
+import requiredInfoReducer from "./requireInfoSlice";
+import cartReducer from "./cartSlice";
 // import { api } from "./query/apiSlice";
 
 // If you don't use RTK query, store will be like this. So simple!
@@ -14,6 +16,8 @@ import productReducer from "./productSlice";
 export const store = configureStore({
   reducer: {
     products: productReducer,
+    requiredInfo: requiredInfoReducer,
+    carts: cartReducer,
   },
 });
 
@@ -23,15 +27,15 @@ export const store = configureStore({
 // });
 
 // export const store = configureStore({
-// reducer: rootReducer,
+//   // reducer: rootReducer,
 //   reducer: {
-// Add the generated reducer as a specific top-level slice
+//     // Add the generated reducer as a specific top-level slice
 //     [api.reducerPath]: api.reducer,
-//     users: productReducer,
+//     users: userReducer,
 //     // Other reducers go here
 //   },
-// Adding the api middleware enables caching, invalidation, polling,
-// and other useful features of `rtk-query`.
+//   // Adding the api middleware enables caching, invalidation, polling,
+//   // and other useful features of `rtk-query`.
 //   middleware: (getDefaultMiddleware) =>
 //     getDefaultMiddleware().concat(api.middleware),
 // });
